@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ambassador Application | Vidhiora</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background-color: #f4f7f6; /* Solid background, no image */
+            display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; padding: 20px; 
+        }
+        .container { 
+            background: #ffffff; /* Solid white container */
+            padding: 30px; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.08); 
+            width: 100%; max-width: 520px; margin-top: 10px; margin-bottom: 20px; border-top: 6px solid #b59410;
+        }
+        .event-header { text-align: center; margin-bottom: 25px; }
+        .event-header h1 { color: #1a252f; font-size: 1.6em; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; line-height: 1.2; font-family: 'Times New Roman', Times, serif;}
+        .event-header .slogan { color: #b59410; font-weight: bold; font-style: italic; font-size: 1.05em; margin-bottom: 5px; }
+        .form-group { margin-bottom: 18px; }
+        .form-group label { display: block; margin-bottom: 6px; color: #444; font-weight: 600; font-size: 0.9em; }
+        .form-group input, .form-group select { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 15px; transition: border-color 0.3s; background: #fafafa; }
+        .form-group input:focus, .form-group select:focus { border-color: #b59410; outline: none; background: #fff; }
+        .checkout-footer { margin-top: 30px; padding-top: 20px; border-top: 2px dashed #e0e0e0; }
+        .pricing-box { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background: #fdfbf7; padding: 15px; border-radius: 8px; border: 1px solid #f0e6d2; }
+        .pricing-title { color: #555; font-weight: 600; font-size: 1em; }
+        .price-final { font-size: 1.8em; font-weight: 800; color: #b59410; }
+        .btn-submit { width: 100%; padding: 16px; background-color: #1a252f; color: white; border: none; border-radius: 8px; font-size: 17px; font-weight: bold; cursor: pointer; transition: 0.3s; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); }
+        .btn-submit:hover { background-color: #0d1318; transform: translateY(-1px); }
+        #paymentSection, #successMessage { display: none; text-align: center; }
+        #upiQrCode { width: 220px; height: 220px; margin: 20px auto; display: block; border: 4px solid #fff; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .social-links { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; margin-top: 15px; }
+        .social-btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: 20px; text-decoration: none; font-size: 0.85em; font-weight: bold; color: white; transition: 0.2s; }
+        .btn-insta { background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); }
+        .btn-linkedin { background: #0077b5; }
+        .btn-wa { background: #25d366; }
+        .social-btn:hover { opacity: 0.9; transform: translateY(-1px); }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="event-header" id="formHeader">
+        <img src="logo.png" alt="Vidhiora Logo" style="width: 90px; margin-bottom: 15px;">
+        <h1>Ambassador Application</h1>
+        <p class="slogan">Get 50% off registration & earn ₹40 per referral.</p>
+    </div>
+    
+    <form id="registerForm">
+        <div class="form-group"><label>Full Name</label><input type="text" id="fullName" required></div>
+        <div class="form-group"><label>Email Address</label><input type="email" id="email" required></div>
+        <div class="form-group"><label>Phone Number</label><input type="tel" id="phone" required></div>
+        <div class="form-group">
+            <label>Educational Qualification</label>
+            <select id="qualification" required>
+                <option value="" disabled selected>Select</option>
+                <option value="High School">High School</option>
+                <option value="Undergraduate">Undergraduate</option>
+                <option value="Postgraduate">Postgraduate</option>
+                <option value="Other">Other</option>
+            </select>
+        </div>
+        <div class="form-group"><label>Course & Year</label><input type="text" id="courseYear" required></div>
+        <div class="form-group"><label>College / University / Organisation</label><input type="text" id="college" required></div>
+        
+        <div class="checkout-footer">
+            <div class="pricing-box">
+                <span class="pricing-title">50% Off Partner Fee:</span>
+                <span class="price-final">₹84.50</span>
+            </div>
+            <button type="submit" class="btn-submit">Proceed to Payment</button>
+        </div>
+    </form>
+
+    <div id="paymentSection">
+        <h3 style="color: #333; margin-bottom: 10px;">Scan & Pay</h3>
+        <p style="color: #666;">Pay exactly <strong style="color:red; font-size: 1.2em;">₹84.50</strong> using any UPI App.</p>
+        <img id="upiQrCode" src="" alt="UPI QR Code">
+        <div class="form-group" style="text-align: left; margin-top:25px;">
+            <label>Enter 12-Digit UTR / Reference No.</label>
+            <input type="text" id="utrInput" placeholder="e.g. 312345678901" maxlength="12" required>
+        </div>
+        <div class="form-group" style="text-align: left; margin-top:15px;">
+            <label>Upload Payment Screenshot</label>
+            <input type="file" id="screenshotInput" accept="image/*" required style="background: #fff;">
+        </div>
+        <button type="button" class="btn-submit" style="background: #28a745; margin-top: 10px;" id="confirmPaidBtn">Submit Payment Details</button>
+    </div>
+
+    <div id="successMessage">
+        <div style="font-size: 3em; margin-bottom: 10px;">⏳</div>
+        <h3 style="color: #28a745; margin-bottom: 10px;">Application Pending Verification!</h3>
+        <p style="color: #555; line-height: 1.5; margin-bottom: 15px; font-size: 0.9em;">
+            Once approved by the admin, you will receive a confirmation email with your <strong>Official Ambassador Code</strong>.
+        </p>
+
+        <div style="background: #e7f7ed; border: 1px solid #25d366; padding: 20px; border-radius: 10px; margin-top: 15px;">
+            <h4 style="color: #075e54; margin-bottom: 8px; font-size: 1.05em;">Join National Competition WhatsApp Group</h4>
+            <a href="https://chat.whatsapp.com/EfOiDMFflgMBTf7ebsUAYs?s=cl&p=i&mlu=0&ilr=0" target="_blank" class="social-btn btn-wa" style="font-size: 0.95em; padding: 10px 20px;">💬 Join WhatsApp Group</a>
+            <div style="margin-top: 15px;">
+                <img src="whatsapp-qr.png" alt="WhatsApp Group QR Code" style="max-width: 180px; border-radius: 8px; border: 2px solid #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+            </div>
+        </div>
+
+        <div style="margin-top: 20px; background: #fff; border: 1px solid #e0e0e0; padding: 15px; border-radius: 10px;">
+            <h4 style="color: #1a252f; font-size: 0.95em; margin-bottom: 8px;">Follow Us for Official Announcements</h4>
+            <div class="social-links">
+                <a href="https://www.instagram.com/vidhiora?igsh=MXFpc3l6Nm1zM284aw==" target="_blank" class="social-btn btn-insta">📸 Instagram</a>
+                <a href="https://linkedin.com/company/vidhiora" target="_blank" class="social-btn btn-linkedin">💼 LinkedIn</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const API_BASE = 'https://vidhiora-backend.onrender.com'; 
+
+    function convertFileToBase64(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = error => reject(error);
+        });
+    }
+
+    document.getElementById('registerForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        document.getElementById('formHeader').style.display = 'none';
+        document.getElementById('registerForm').style.display = 'none';
+        document.getElementById('paymentSection').style.display = 'block';
+        
+        const upiLink = `upi://pay?pa=anurag037k@ptyes&pn=VidhioraAmbassador&am=84.50&cu=INR`;
+        document.getElementById('upiQrCode').src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(upiLink)}`;
+    });
+
+    document.getElementById('confirmPaidBtn').addEventListener('click', async () => {
+        const utr = document.getElementById('utrInput').value;
+        const screenshotFile = document.getElementById('screenshotInput').files[0];
+
+        if(utr.length !== 12 || isNaN(utr)) return alert("Enter valid 12-digit UTR");
+        if (!screenshotFile) return alert("Please upload your payment screenshot.");
+        
+        // Removed the strict size check for testing to see if the file itself is the problem
+        const btn = document.getElementById('confirmPaidBtn');
+        btn.disabled = true;
+        btn.innerText = "Processing Image...";
+
+        try {
+            const base64Screenshot = await convertFileToBase64(screenshotFile);
+
+            btn.innerText = "Submitting Application...";
+            const payload = {
+                fullName: document.getElementById('fullName').value, email: document.getElementById('email').value,
+                phone: document.getElementById('phone').value, qualification: document.getElementById('qualification').value,
+                courseYear: document.getElementById('courseYear').value, college: document.getElementById('college').value,
+                accountType: 'Ambassador', utrNumber: utr, paymentProof: base64Screenshot
+            };
+
+            const res = await fetch(`${API_BASE}/api/register`, {
+                method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
+            });
+            const data = await res.json();
+
+            if(res.ok) {
+                document.getElementById('paymentSection').style.display = 'none';
+                document.getElementById('successMessage').style.display = 'block';
+            } else {
+                alert(data.error || "An error occurred.");
+                btn.disabled = false; btn.innerText = "Submit Payment Details";
+            }
+        } catch(e) {
+            alert("Error processing screenshot. Please select a valid image file.");
+            btn.disabled = false; btn.innerText = "Submit Payment Details";
+        }
+    });
+</script>
+</body>
+</html>
