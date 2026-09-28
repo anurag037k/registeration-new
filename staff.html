@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Staff Tracker | Vidhiora</title>
+    <style>
+        /* Base Styles */
+        * { box-sizing: border-box; } 
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #121212; color: #e0e0e0; margin: 0; padding: 20px; }
+        .container { max-width: 1100px; margin: 0 auto; }
+        
+        /* Login Box */
+        .login-box { max-width: 350px; margin: 100px auto; padding: 30px; background: #1e1e1e; border-radius: 8px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.6); }
+        h2 { margin-bottom: 20px; color: #ffffff; }
+        input { width: 100%; padding: 12px; margin-bottom: 15px; border-radius: 5px; border: 1px solid #333; background: #2c2c2c; color: #fff; outline: none; }
+        button { background-color: #4CAF50; color: white; border: none; padding: 12px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; width: 100%; transition: 0.3s; }
+        button:hover { background-color: #45a049; }
+        
+        /* Dashboard Header */
+        .header { display: flex; justify-content: space-between; align-items: center; background: #1e1e1e; padding: 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.3); flex-wrap: wrap; gap: 15px;}
+        .header h2 { margin: 0; font-size: 20px; }
+        .logout-btn { background-color: #f44336; width: auto; padding: 10px 20px; }
+        .logout-btn:hover { background-color: #d32f2f; }
+        
+        #dashboard { display: none; }
+
+        /* HORIZONTAL SLIDE BAR CONTAINER */
+        .table-container { 
+            width: 100%; 
+            overflow-x: auto; /* This creates the horizontal slide bar */
+            -webkit-overflow-scrolling: touch; /* Makes swiping smooth on mobile */
+            background: #1e1e1e; 
+            border-radius: 8px; 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.4); 
+            /* Adds a subtle custom scrollbar for better UI */
+            scrollbar-width: thin;
+            scrollbar-color: #4CAF50 #2c2c2c;
+        }
+        
+        /* Custom Webkit Scrollbar for Chrome/Safari/Edge */
+        .table-container::-webkit-scrollbar { height: 8px; }
+        .table-container::-webkit-scrollbar-track { background: #2c2c2c; border-radius: 8px; }
+        .table-container::-webkit-scrollbar-thumb { background-color: #4CAF50; border-radius: 8px; }
+
+        /* Table Styles */
+        table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            min-width: 850px; /* Forces the table to stay wide so the slide bar activates on phones */
+        }
+        th, td { padding: 15px; text-align: left; border-bottom: 1px solid #2c2c2c; }
+        th { background: #292929; color: #bbb; text-transform: uppercase; font-size: 13px; letter-spacing: 0.5px; white-space: nowrap; }
+        td { font-size: 14px; line-height: 1.5; }
+        
+        /* Status Badges */
+        .status-Pending { color: #ff9800; font-weight: bold; background: rgba(255, 152, 0, 0.15); padding: 5px 10px; border-radius: 5px; display: inline-block; white-space: nowrap; }
+        .status-Approved { color: #4CAF50; font-weight: bold; background: rgba(76, 175, 80, 0.15); padding: 5px 10px; border-radius: 5px; display: inline-block; white-space: nowrap; }
+
+        /* Minor mobile padding adjustments */
+        @media screen and (max-width: 768px) {
+            body { padding: 10px; }
+            .header h2 { font-size: 18px; text-align: center; width: 100%; }
+            .logout-btn { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Staff Login Screen -->
+    <div id="loginOverlay" class="login-box">
+        <h2>Staff Access Portal</h2>
+        <input type="password" id="staffPassInput" placeholder="Enter Staff Password">
+        <button onclick="loginStaff()">Verify Access</button>
+    </div>
+
+    <!-- View-Only Dashboard -->
+    <div id="dashboard" class="container">
+        <div class="header">
+            <h2>📱 Student Registrations (View Only)</h2>
+            <button class="logout-btn" onclick="logoutStaff()">Logout Staff</button>
+        </div>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Student Name</th>
+                        <th>Contact Info</th>
+                        <th>Education Profile</th>
+                        <th>UTR Number</th>
+                        <th>Verification Status</th>
+                    </tr>
+                </thead>
+                <tbody id="studentTableBody">
+                    <tr><td colspan="5" style="text-align: center; padding: 30px;">Loading data...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'https://vidhiora-backend.onrender.com';
+
+        async function loginStaff() {
+            const password = document.getElementById('staffPassInput').value;
+            const response = await fetch(`${API_URL}/api/staff/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ password })
+            });
+
+            if (response.ok) {
+                sessionStorage.setItem('staffPass', password);
+                document.getElementById('loginOverlay').style.display = 'none';
+                document.getElementById('dashboard').style.display = 'block';
+                fetchStudentData();
+            } else {
+                alert("Incorrect staff password!");
+            }
+        }
+
+        async function fetchStudentData() {
+            const password = sessionStorage.getItem('staffPass');
+            const response = await fetch(`${API_URL}/api/staff/users`, {
+                headers: { 'x-staff-password': password }
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                const tbody = document.getElementById('studentTableBody');
+                tbody.innerHTML = '';
+
+                if(data.students.length === 0) {
+                     tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 30px;">No students found in the database.</td></tr>';
+                     return;
+                }
+
+                data.students.forEach(student => {
+                    const utrDisplay = student.utrNumber ? student.utrNumber : '<span style="color:#888;">N/A</span>';
+                    const college = student.college || 'Not Provided';
+                    const qualification = student.qualification || 'Not Provided';
+                    const courseYear = student.courseYear || 'N/A';
+
+                    tbody.innerHTML += `
+                        <tr>
+                            <td><strong style="color: #fff; font-size: 16px; white-space: nowrap;">${student.fullName}</strong></td>
+                            <td style="white-space: nowrap;">
+                                📧 ${student.email}<br>
+                                📞 ${student.phone}
+                            </td>
+                            <td style="white-space: nowrap;">
+                                <strong style="color: #4CAF50;">${college}</strong><br>
+                                🎓 ${qualification} (Year: ${courseYear})
+                            </td>
+                            <td><strong style="letter-spacing: 1px; white-space: nowrap;">${utrDisplay}</strong></td>
+                            <td><span class="status-${student.paymentStatus}">${student.paymentStatus}</span></td>
+                        </tr>
+                    `;
+                });
+            } else {
+                alert("Session expired or unauthorized. Please log in again.");
+                logoutStaff();
+            }
+        }
+
+        function logoutStaff() {
+            sessionStorage.removeItem('staffPass');
+            location.reload();
+        }
+
+        // Auto-login check on page load
+        if (sessionStorage.getItem('staffPass')) {
+            document.getElementById('loginOverlay').style.display = 'none';
+            document.getElementById('dashboard').style.display = 'block';
+            fetchStudentData();
+        }
+    </script>
+</body>
+</html>
